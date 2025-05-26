@@ -10,6 +10,11 @@ bool showMenu = true;
 //Daynight
 bool isNight = false;
 
+//congestion
+int congestionLevel = 0;
+std::string feedback = "Excellent";
+
+
 
 
 
@@ -297,6 +302,10 @@ void display() {
     // Countdown Text
     drawText(hSignalX - 0.02f, hSignalY + 0.24f, std::to_string(horizontalTimer));
     drawText(vSignalX - 0.02f, vSignalY + 0.24f, std::to_string(verticalTimer));
+    // Display congestion
+    drawText(-0.9f, -0.9f, ("Congestion Level: " + std::to_string(congestionLevel)).c_str());
+    drawText(-0.9f, -0.95f, ("Status: " + feedback).c_str());
+
 
     glFlush();
 }
@@ -441,6 +450,42 @@ void timer(int value) {
             }
         }
     }
+    int waitingCars = 0;
+
+    float busFrontX = busPosX + 0.15f; // Assuming bus front is 0.15f ahead of busPosX, adjust if needed
+
+    // Car stopped at red/yellow light
+    if ((horizontalSignal != GREEN) && (carPosX + 0.1f >= carStopX - 0.01f && carPosX <= carStopX + 0.01f)) {
+        waitingCars++;
+    }
+
+    // Bus stopped at red/yellow light
+    if ((horizontalSignal != GREEN) && (busFrontX >= busStopX - 0.01f && busFrontX <= busStopX + 0.01f)) {
+        waitingCars++;
+    }
+
+    // Bike stopped at red/yellow light
+    if ((verticalSignal != GREEN) && (bikePosY >= bikeStopY - 0.01f && bikePosY <= bikeStopY + 0.01f)) {
+        waitingCars++;
+    }
+
+    if (waitingCars > 0) {
+        congestionLevel += waitingCars * 2;
+    }
+    else if (congestionLevel > 0) {
+        congestionLevel -= 1; // slowly decrease congestion when no waiting cars
+    }
+
+    // Clamp congestionLevel within range
+    if (congestionLevel > 200) congestionLevel = 200;
+    if (congestionLevel < 0) congestionLevel = 0;
+
+    // Set feedback text based on congestion level
+    if (congestionLevel < 50) feedback = "Excellent";
+    else if (congestionLevel < 120) feedback = "Moderate";
+    else feedback = "Needs Improvement";
+
+
 
     glutPostRedisplay();
     glutTimerFunc(16, timer, 0);
