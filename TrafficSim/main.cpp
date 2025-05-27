@@ -227,6 +227,7 @@ void display() {
         drawText(-0.35f, -0.70f, "Press 1 to Force Red Signal");
         drawText(-0.35f, -0.75f, "Press 2 to Force Yellow Signal");
         drawText(-0.35f, -0.80f, "Press 3 to Force Green Signal");
+        drawText(-0.35f, -0.85f, "Press 4 to Toggle Day/Night");
 
         glFlush();
         return;
